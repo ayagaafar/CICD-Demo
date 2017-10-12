@@ -23,7 +23,13 @@ pipeline {
     	}
 
         }
-	   
+	        stage('Java Build') {
+        	steps {
+				sh"""
+					sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -Dsonar.host.url=http://localhost:9000/"
+				"""
+			        	}
+		}
         stage('docker Build') {
 		steps {
 			notifyStarted("Docker Build")
