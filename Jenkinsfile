@@ -12,15 +12,15 @@ pipeline {
 					mvn clean package
 				"""
 			        	}
-		post
-		{
-		success{
-			notifySuccessful("Java Build")
- 			}
-        failure{
-        	notifyFailed("Java Build")
-        	 }
-    	}
+
+        }
+	    
+	 stage('Java Build') {
+        	steps {
+				sh"""
+					sh "${sonarqubeScannerHome}/bin/sonar-scanner -e -Dsonar.host.url=http://localhost:9000/"
+				"""
+			        	}
 
         }
 	   
@@ -42,15 +42,6 @@ pipeline {
 			}
 					
 		}
-		post
-		{
-		success{
-			notifySuccessful("Docker Build")
-			}
-        failure{
-        	notifyFailed("Docker Build")
-        	 }
-    	}
 			
 			
         	}
@@ -67,46 +58,11 @@ pipeline {
 					
 				 """	
         	}
-
-        	post
-			{
-			success{
-				notifySuccessful("Kubernetes Deployment")
-			}
-        failure{
-        	notifyFailed("Kubernetes Deployment")
-        	 }
-    	}
     	
         }
     }
 
 }
+def sonarqubeScannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
 
 
-//functions
-
-def notifyStarted(stagename) {
-  // send to Slack
-  slackSend (color: '#FFFF00', message: "STARTED: Job $stagename '[${env.BUILD_NUMBER}]'", channel: 'ci-cd-demo')
-}
-
-def notifySuccessful(stagename) {
-  // send to Slack
-  slackSend (color: '#00FF00', message: "SUCCESSFUL: Job $stagename '[${env.BUILD_NUMBER}]'", channel: 'ci-cd-demo')
- 
- }
-
-def notifyFailed(stagename) {
-  // send to Slack
-  slackSend (color: '#FF0000', message: "FAILED: Job $stagename' [${env.BUILD_NUMBER}]'", channel: 'ci-cd-demo')
-  // send mail
-  emailext attachLog: true, subject: "Jenkins Job ${env.JOB_NAME} $stagename [${env.BUILD_NUMBER}] failed", to: 'yara.abdellatif1@vodafone.com,manar.hassan1@vodafone.com,ahmed.said-abdallah2@vodafone.com', body: """
-Dears,
-
-Kindly be informed that the job $stagename has failed, please find the logs attached to this email.
-			
-Thanks
-Deployment CoE
-"""
-}
