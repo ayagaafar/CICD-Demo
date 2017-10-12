@@ -110,3 +110,4 @@ Thanks
 Deployment CoE
 """
 }
+def sonarqubeScannerHome = tool name: 'SonarQubeScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
